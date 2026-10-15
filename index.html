@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>窗口邮局 · Window Post</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon">▣</span>
+        <div>
+          <strong>窗口邮局</strong><small>WINDOW POST · 离线益智工坊</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="progress" class="progress"></span
+        ><button id="open-levels">关卡地图</button
+        ><button id="help">玩法</button
+        ><button id="sound" aria-pressed="false">声音：关</button
+        ><button id="new-editor">关卡编辑器</button>
+      </div>
+    </header>
+    <section class="level-heading">
+      <div>
+        <span id="chapter" class="eyebrow"></span>
+        <h1 id="title"></h1>
+        <p id="brief"></p>
+      </div>
+      <div class="level-nav">
+        <button id="prev-level" aria-label="上一关">←</button
+        ><button id="next-level" aria-label="下一关">→</button>
+      </div>
+    </section>
+    <main class="workbench">
+      <aside class="panel tools-panel">
+        <div class="panel-title">
+          <h2>处理窗口</h2>
+          <span id="tool-count" class="pill"></span>
+        </div>
+        <p class="muted">进入时加工一次 · 同格从上到下</p>
+        <div id="tools"></div>
+        <div id="inspector" class="inspector"></div>
+        <div class="history-actions">
+          <button id="undo">↶ 撤销</button><button id="redo">↷ 重做</button
+          ><button id="reset">重置布局</button>
+        </div>
+        <button id="hint" class="wide">✦ 给我一点提示</button
+        ><button id="solution" class="wide subtle">查看参考布置</button>
+      </aside>
+      <section class="stage-panel">
+        <div class="stage-caption">
+          <span>● 邮件传送桌</span><span id="stage-state">布置模式</span>
+        </div>
+        <div
+          id="board"
+          tabindex="0"
+          aria-label="邮件路线网格，选择窗口后可用方向键移动"
+        ></div>
+        <div class="board-legend">
+          <span>虚线：行驶路线　▸：入口　□：出口</span
+          ><span>拖标题移动 · 拖右下角缩放</span>
+        </div>
+        <div class="transport">
+          <button id="run" class="primary">▶ 发件</button
+          ><button id="step">单步 ▷</button
+          ><button id="rewind">↤ 回到布置</button
+          ><label class="speed"
+            >速度<select id="speed" aria-label="回放速度">
+              <option value="700">慢</option>
+              <option value="360" selected>正常</option>
+              <option value="140">快</option>
+            </select></label
+          ><span id="timeline">等待发件</span>
+        </div>
+        <div id="status" role="status" class="status">
+          从左侧选择窗口，放到邮件路线上。
+        </div>
+        <div id="hint-box" class="hint-box" hidden></div>
+        <div id="editor-panel" class="panel editor-panel" hidden></div>
+      </section>
+      <aside class="panel orders-panel">
+        <div class="panel-title">
+          <h2>交付订单</h2>
+          <span id="match-count" class="pill">0 / 0</span>
+        </div>
+        <p class="muted">检查双面颜色、章序、折痕和方向。</p>
+        <div id="orders"></div>
+        <div class="save-block">
+          <strong>邮局档案</strong
+          ><small id="save-status">布局与通关进度自动保存在本机</small
+          ><button id="export-save">导出存档</button
+          ><button id="import-save">导入存档</button
+          ><button id="export-level">导出此关 JSON</button
+          ><button id="import-level">导入自制关卡</button>
+        </div>
+      </aside>
+    </main>
+    <footer>
+      不联网 · 无账户 · 规则确定、可重播
+      <span>方向键移动窗口 · Ctrl+Z 撤销 · 空格播放/暂停</span>
+    </footer>
+    <dialog id="level-dialog">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow">POST OFFICE ROUTES</span>
+          <h2>今天送哪一班？</h2>
+        </div>
+        <button data-close="level-dialog" aria-label="关闭">×</button>
+      </div>
+      <div id="level-grid"></div>
+      <div id="custom-levels"></div>
+    </dialog>
+    <dialog id="help-dialog">
+      <div class="dialog-head">
+        <h2>欢迎值班，邮局窗口员。</h2>
+        <button data-close="help-dialog" aria-label="关闭">×</button>
+      </div>
+      <div class="help-body">
+        <p>
+          每封信会沿虚线从入口驶向出口。把处理窗口放到线路上，让邮件按照订单经历不同工艺。
+        </p>
+        <ol>
+          <li>
+            <b>进入才加工：</b
+            >跨入一扇窗时执行一次。留在窗内不重复；离开后再次进入会再次加工。
+          </li>
+          <li>
+            <b>位置决定先后：</b
+            >信先经过的窗先加工；同一步进入多扇重叠窗，则按左侧列表从上到下加工。
+          </li>
+          <li>
+            <b>双面都检查：</b
+            >染色、盖章和擦除仅影响当前朝上的面。翻面改变朝上的面，旋转不改变正背面。
+          </li>
+          <li>
+            <b>六种工艺：</b
+            >染色覆盖当前面；邮戳依次追加并记录盖下时方向；折叠累计到两折；擦除清空当前面颜色及章；翻面切换正背；旋转顺时针
+            90°。
+          </li>
+          <li>
+            <b>看清每一步：</b
+            >“单步”会展示一次移动或一次加工。暂停后可以继续，也可以回到布置重来。
+          </li>
+        </ol>
+        <p>
+          选中左侧窗口后，点击桌面空格可放置；拖窗口标题移动，右下角缩放。精确位置也可在左侧输入。查看参考布置不会自动判定通关，仍需发件验证。
+        </p>
+        <p>
+          编辑器：编辑标题和工具，选信件后开启画路线，依次点击相邻格。布好一个能运作的解法后，“生成订单并保存”，即可得到可分享、有解的独立关卡。
+        </p>
+      </div>
+    </dialog>
+    <input type="file" id="file-input" accept=".json,application/json" hidden />
+    <script src="src/engine.js"></script>
+    <script src="src/levels.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>
